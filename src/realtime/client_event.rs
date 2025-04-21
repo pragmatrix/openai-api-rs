@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use tokio_tungstenite::tungstenite::Message;
+use tokio_tungstenite::tungstenite::{Message, Utf8Bytes};
 
 use crate::realtime::types::{Item, Session};
 
@@ -92,7 +92,9 @@ pub enum ClientEvent {
 
 impl From<ClientEvent> for Message {
     fn from(value: ClientEvent) -> Self {
-        Message::Text(String::from(&value))
+        let str = String::from(&value);
+        let utf8 = Utf8Bytes::from(str);
+        Message::Text(utf8)
     }
 }
 

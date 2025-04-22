@@ -310,3 +310,68 @@ pub enum ServerEvent {
     #[serde(rename = "rate_limits.updated")]
     RateLimitsUpdated(RateLimitsUpdated),
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::realtime::types::ResponseStatus;
+
+    use super::*;
+    use serde_json;
+
+    #[test]
+    fn test_deserialize_response_done_failed() {
+        let json = r#"{
+            "type": "response.done",
+            "event_id": "event_BPCUSHJ9ypUpmolPnMgnk",
+            "response": {
+                "object": "realtime.response",
+                "id": "resp_BPCUSiCNGTp6OCpvQVY7B",
+                "status": "failed",
+                "status_details": {
+                    "type": "failed",
+                    "error": {
+                        "type": "server_error",
+                        "code": null,
+                        "message": "The server had an error while processing your request. Sorry about that! Please contact us through our help center at help.openai.com if the error persists. (include session ID in your message: sess_BPCURVTOjLzv9uW8eqeiD). We recommend you retry your request."
+                    }
+                },
+                "output": [],
+                "conversation_id": "conv_BPCURiDfeHoPocZcNszg2",
+                "modalities": ["audio", "text"],
+                "voice": "alloy",
+                "output_audio_format": "pcm16",
+                "temperature": 0.8,
+                "max_output_tokens": "inf",
+                "usage": {
+                    "total_tokens": 0,
+                    "input_tokens": 0,
+                    "output_tokens": 0,
+                    "input_token_details": {
+                        "text_tokens": 0,
+                        "audio_tokens": 0,
+                        "cached_tokens": 0,
+                        "cached_tokens_details": {
+                            "text_tokens": 0,
+                            "audio_tokens": 0
+                        }
+                    },
+                    "output_token_details": {
+                        "text_tokens": 0,
+                        "audio_tokens": 0
+                    }
+                },
+                "metadata": null
+            }
+        }"#;
+
+        let event: Result<ServerEvent, _> = serde_json::from_str(json);
+        assert!(event.is_ok());
+        if let ServerEvent::ResponseDone(resp_done) = event.unwrap() {
+            assert_eq!(resp_done.event_id, "event_BPCUSHJ9ypUpmolPnMgnk");
+            assert_eq!(resp_done.response.status, ResponseStatus::Failed);
+            // Optionally check more fields here
+        } else {
+            panic!("Expected ServerEvent::ResponseDone");
+        }
+    }
+}

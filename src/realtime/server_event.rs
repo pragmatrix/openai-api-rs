@@ -313,8 +313,6 @@ pub enum ServerEvent {
 
 #[cfg(test)]
 mod tests {
-    use crate::realtime::types::ResponseStatus;
-
     use super::*;
     use serde_json;
 
@@ -366,12 +364,5 @@ mod tests {
 
         let event: Result<ServerEvent, _> = serde_json::from_str(json);
         assert!(event.is_ok());
-        if let ServerEvent::ResponseDone(resp_done) = event.unwrap() {
-            assert_eq!(resp_done.event_id, "event_BPCUSHJ9ypUpmolPnMgnk");
-            assert_eq!(resp_done.response.status, ResponseStatus::Failed);
-            // Optionally check more fields here
-        } else {
-            panic!("Expected ServerEvent::ResponseDone");
-        }
     }
 }

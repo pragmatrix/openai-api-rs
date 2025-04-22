@@ -228,7 +228,7 @@ pub enum ResponseStatusDetail {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct FailedError {
-    pub code: String,
+    pub code: Option<String>,
     pub message: String,
 }
 

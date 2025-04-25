@@ -2,7 +2,6 @@ use futures_util::stream::{SplitSink, SplitStream};
 use futures_util::StreamExt;
 use tokio::net::TcpStream;
 use tokio_tungstenite::{
-    connect_async,
     tungstenite::{client::IntoClientRequest, protocol::Message},
     MaybeTlsStream, WebSocketStream,
 };
@@ -47,7 +46,9 @@ impl RealtimeClient {
         request
             .headers_mut()
             .insert("OpenAI-Beta", "realtime=v1".parse()?);
-        let (ws_stream, _) = connect_async(request).await?;
+        // Since  we are live streaming audio, we disable the nagle algorithm.
+        let (ws_stream, _) =
+            tokio_tungstenite::connect_async_with_config(request, None, true).await?;
         let (write, read) = ws_stream.split();
         Ok((write, read))
     }

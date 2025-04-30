@@ -108,7 +108,7 @@ pub enum MaxOutputTokens {
     Inf,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum ItemType {
     Message,
@@ -116,7 +116,7 @@ pub enum ItemType {
     FunctionCallOutput,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum ItemStatus {
     Completed,

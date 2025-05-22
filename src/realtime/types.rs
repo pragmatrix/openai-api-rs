@@ -202,7 +202,29 @@ pub struct Response {
 pub struct Usage {
     pub total_tokens: u32,
     pub input_tokens: u32,
+    pub input_token_details: InputTokenDetails,
     pub output_tokens: u32,
+    pub output_token_details: OutputTokenDetails,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct InputTokenDetails {
+    pub audio_tokens: u32,
+    pub cached_tokens: u32,
+    pub cached_tokens_details: CachedTokensDetails,
+    pub text_tokens: u32,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct OutputTokenDetails {
+    pub audio_tokens: u32,
+    pub text_tokens: u32,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CachedTokensDetails {
+    pub text_tokens: u32,
+    pub audio_tokens: u32,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

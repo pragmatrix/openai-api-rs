@@ -30,24 +30,30 @@ pub struct Session {
 #[serde(rename_all = "lowercase")]
 pub enum RealtimeVoice {
     Alloy,
-    Shimmer,
+    Ash,
+    Ballad,
+    Coral,
     Echo,
+    Sage,
+    Shimmer,
+    Verse,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum AudioFormat {
     #[serde(rename = "pcm16")]
     PCM16,
-    #[serde(rename = "g711-ulaw")]
+    #[serde(rename = "g711_ulaw")]
     G711ULAW,
-    #[serde(rename = "g711-alaw")]
+    #[serde(rename = "g711_alaw")]
     G711ALAW,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AudioTranscription {
-    pub enabled: bool,
-    pub model: String,
+    pub language: Option<String>,
+    pub model: Option<String>,
+    pub prompt: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -251,7 +257,8 @@ pub enum ResponseStatusDetail {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct FailedError {
     pub code: Option<String>,
-    pub message: String,
+    pub message: Option<String>,
+    pub r#type: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

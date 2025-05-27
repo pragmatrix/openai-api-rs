@@ -222,11 +222,13 @@ pub struct ChatCompletionMessage {
     pub tool_call_id: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct ChatCompletionMessageForResponse {
     pub role: MessageRole,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reasoning_content: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -243,14 +245,13 @@ pub struct ChatCompletionChoice {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ChatCompletionResponse {
-    pub id: String,
+    pub id: Option<String>,
     pub object: String,
     pub created: i64,
     pub model: String,
     pub choices: Vec<ChatCompletionChoice>,
     pub usage: common::Usage,
     pub system_fingerprint: Option<String>,
-    pub headers: Option<HashMap<String, String>>,
 }
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, Eq)]

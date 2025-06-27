@@ -13,7 +13,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     let result = client.audio_translation(req).await?;
-    println!("{:?}", result);
+    println!("{result:?}");
 
     Ok(())
 }

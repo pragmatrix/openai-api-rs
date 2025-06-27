@@ -52,7 +52,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut file = File::create(output_file_path)?;
     file.write_all(result_json.as_bytes())?;
 
-    println!("File writed to {:?}", output_file_path);
+    println!("File writed to {output_file_path:?}");
 
     Ok(())
 }

@@ -21,7 +21,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .description("this is a test assistant".to_string());
     let req = req.clone().instructions("You are a personal math tutor. When asked a question, write and run Python code to answer the question.".to_string());
     let req = req.clone().tools(vec![tools]);
-    println!("AssistantRequest: {:?}", req);
+    println!("AssistantRequest: {req:?}");
 
     let result = client.create_assistant(req).await?;
     println!("Create Assistant Result ID: {:?}", result.id);

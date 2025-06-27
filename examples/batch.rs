@@ -44,7 +44,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let result = client.retrieve_file_content(file_id).await?;
     let s = match str::from_utf8(&result) {
         Ok(v) => v.to_string(),
-        Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+        Err(e) => panic!("Invalid UTF-8 sequence: {e}"),
     };
     let json_value: Value = from_str(&s)?;
     let result_json = to_string_pretty(&json_value)?;
@@ -53,7 +53,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut file = File::create(output_file_path)?;
     file.write_all(result_json.as_bytes())?;
 
-    println!("File writed to {:?}", output_file_path);
+    println!("File writed to {output_file_path:?}");
 
     Ok(())
 }

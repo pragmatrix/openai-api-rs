@@ -439,11 +439,15 @@ pub enum ItemRole {
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum ItemContentType {
+    /// seemingly deprecated
     InputText,
+    /// seemingly deprecated
     InputAudio,
     InputImage,
     Text,
+    /// seemingly deprecated
     OutputAudio,
+    Audio,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

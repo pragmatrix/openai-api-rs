@@ -1,13 +1,26 @@
 use serde::{Deserialize, Serialize};
 use tokio_tungstenite::tungstenite::Message;
 
-use crate::realtime::types::{Item, RealtimeSession, UntaggedSession};
+use crate::realtime::types::{Item, RealtimeSession, Session, UntaggedSession};
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(untagged)]
+pub enum SessionUpdatePayload {
+    Tagged(Session),
+    Untagged(UntaggedSession),
+}
+
+impl Default for SessionUpdatePayload {
+    fn default() -> Self {
+        Self::Untagged(UntaggedSession::default())
+    }
+}
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct SessionUpdate {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub event_id: Option<String>,
-    pub session: UntaggedSession,
+    pub session: SessionUpdatePayload,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]

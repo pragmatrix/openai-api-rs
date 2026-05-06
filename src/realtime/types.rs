@@ -50,6 +50,8 @@ pub struct RealtimeSession {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub instructions: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub voice: Option<RealtimeVoice>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub tools: Option<Vec<ToolDefinition>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tool_choice: Option<ToolChoice>,
@@ -108,9 +110,6 @@ pub enum RealtimeVoice {
     Cedar,
     Coral,
     Echo,
-    Fable,
-    Onyx,
-    Nova,
     Marin,
     Sage,
     Shimmer,

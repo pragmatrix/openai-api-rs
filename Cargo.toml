@@ -46,3 +46,7 @@ version = "2.5.4"
 
 [dependencies.tracing]
 version = "0.1"
+
+[dependencies.strum]
+version = "0.28"
+features = ["derive"]

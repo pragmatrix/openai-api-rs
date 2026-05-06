@@ -1,5 +1,5 @@
-use std::process::exit;
 use std::env;
+use std::process::exit;
 
 use futures_util::{future, pin_mut, StreamExt};
 use openai_api_rs::realtime::api::RealtimeClient;

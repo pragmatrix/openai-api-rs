@@ -8,25 +8,41 @@ use tokio_tungstenite::{
 use tracing::info;
 use url::Url;
 
-const WSS_URL: &str = "wss://api.openai.com/v1/realtime";
+const DEFAULT_WSS_URL: &str = "wss://api.openai.com/v1/realtime";
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RealtimeProtocol {
+    OpenAI,
+    Azure,
+}
 
 pub struct RealtimeClient {
     pub wss_url: String,
     pub api_key: String,
     pub model: String,
+    pub protocol: RealtimeProtocol,
 }
 
 impl RealtimeClient {
     pub fn new(api_key: String, model: String) -> Self {
-        let wss_url = std::env::var("WSS_URL").unwrap_or_else(|_| WSS_URL.to_owned());
-        Self::new_with_endpoint(wss_url, api_key, model)
+        Self::new_with_endpoint(DEFAULT_WSS_URL.to_owned(), api_key, model)
     }
 
     pub fn new_with_endpoint(wss_url: String, api_key: String, model: String) -> Self {
+        Self::new_with_endpoint_and_protocol(wss_url, api_key, model, RealtimeProtocol::OpenAI)
+    }
+
+    pub fn new_with_endpoint_and_protocol(
+        wss_url: String,
+        api_key: String,
+        model: String,
+        protocol: RealtimeProtocol,
+    ) -> Self {
         Self {
             wss_url,
             api_key,
             model,
+            protocol,
         }
     }
 
@@ -44,14 +60,17 @@ impl RealtimeClient {
         } else {
             format!("{}?model={}", self.wss_url, self.model)
         };
-        let connect_url = self.with_azure_api_key_query(&url)?;
+        let connect_url = match self.protocol {
+            RealtimeProtocol::OpenAI => url,
+            RealtimeProtocol::Azure => self.with_azure_api_key_query(&url)?,
+        };
 
         info!(
             "Realtime websocket URL: {}",
             self.redact_url_for_log(&connect_url)
         );
         let mut request = connect_url.clone().into_client_request()?;
-        self.apply_auth_header(connect_url.as_str(), request.headers_mut())?;
+        self.apply_auth_header(request.headers_mut())?;
         request
             .headers_mut()
             .insert("OpenAI-Beta", "realtime=v1".parse()?);
@@ -64,16 +83,13 @@ impl RealtimeClient {
 
     fn apply_auth_header(
         &self,
-        request_url: &str,
         headers: &mut tokio_tungstenite::tungstenite::http::HeaderMap,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let use_authorization = Url::parse(request_url)
-            .ok()
-            .map(|url| !Self::is_azure_openai_host(&url))
-            .unwrap_or(true);
-
-        if use_authorization {
-            headers.insert("Authorization", format!("Bearer {}", self.api_key).parse()?);
+        match self.protocol {
+            RealtimeProtocol::OpenAI => {
+                headers.insert("Authorization", format!("Bearer {}", self.api_key).parse()?);
+            }
+            RealtimeProtocol::Azure => {}
         }
 
         Ok(())
@@ -83,25 +99,21 @@ impl RealtimeClient {
         &self,
         request_url: &str,
     ) -> Result<String, Box<dyn std::error::Error>> {
-        let mut parsed = Url::parse(request_url)?;
-        if !Self::is_azure_openai_host(&parsed) {
-            return Ok(request_url.to_string());
+        match self.protocol {
+            RealtimeProtocol::OpenAI => Ok(request_url.to_string()),
+            RealtimeProtocol::Azure => {
+                let mut parsed = Url::parse(request_url)?;
+
+                let has_api_key = parsed.query_pairs().any(|(k, _)| k == "api-key");
+                if !has_api_key {
+                    parsed
+                        .query_pairs_mut()
+                        .append_pair("api-key", &self.api_key);
+                }
+
+                Ok(parsed.to_string())
+            }
         }
-
-        let has_api_key = parsed.query_pairs().any(|(k, _)| k == "api-key");
-        if !has_api_key {
-            parsed
-                .query_pairs_mut()
-                .append_pair("api-key", &self.api_key);
-        }
-
-        Ok(parsed.to_string())
-    }
-
-    fn is_azure_openai_host(url: &Url) -> bool {
-        url.host_str()
-            .map(|host| host.ends_with(".openai.azure.com"))
-            .unwrap_or(false)
     }
 
     fn redact_url_for_log(&self, request_url: &str) -> String {

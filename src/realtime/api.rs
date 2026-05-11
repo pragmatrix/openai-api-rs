@@ -71,9 +71,6 @@ impl RealtimeClient {
         );
         let mut request = connect_url.clone().into_client_request()?;
         self.apply_auth_header(request.headers_mut())?;
-        request
-            .headers_mut()
-            .insert("OpenAI-Beta", "realtime=v1".parse()?);
         // Since  we are live streaming audio, we disable the nagle algorithm.
         let (ws_stream, _) =
             tokio_tungstenite::connect_async_with_config(request, None, true).await?;

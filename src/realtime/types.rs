@@ -43,7 +43,7 @@ pub struct RealtimeSession {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub include: Option<Vec<AdditionalServerOutput>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub model: Option<RealtimeModel>,
+    pub model: Option<String>,
     /// Just `Audio` by default. Can also be `Text` for text-only. Both at the same time are not supported.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub output_modalities: Option<Vec<OutputModality>>,
@@ -66,24 +66,6 @@ pub struct RealtimeSession {
     // Todo: Support truncation config (poorly documented atm)
     // #[serde(skip_serializing_if = "Option::is_none")]
     // pub tracing: Option<TracingMode>, // "auto" or config object
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum RealtimeModel {
-    #[serde(rename = "gpt-realtime")]
-    GptRealtime,
-    #[serde(rename = "gpt-4o-realtime-preview")]
-    Gpt4oRealtimePreview,
-    #[serde(rename = "gpt-4o-mini-realtime-preview")]
-    Gpt4oMiniRealtimePreview,
-    #[serde(rename = "gpt-realtime-2025-08-28")]
-    GptRealtime20250828,
-    #[serde(rename = "gpt-4o-realtime-preview-2024-12-17")]
-    Gpt4oRealtimePreview20241217,
-    #[serde(rename = "gpt-4o-realtime-preview-2024-10-01")]
-    Gpt4oRealtimePreview20241001,
-    #[serde(rename = "gpt-4o-mini-realtime-preview-2024-12-17")]
-    Gpt4oMiniRealtimePreview20241217,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

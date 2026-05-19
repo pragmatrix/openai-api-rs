@@ -84,7 +84,7 @@ pub struct ConversationItemInputAudioTranscriptionDelta {
     pub item_id: String,
     pub content_index: u32,
     pub delta: String,
-    // todo: add logprobs support
+    // TODO: add logprobs support
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

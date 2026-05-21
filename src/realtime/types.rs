@@ -422,6 +422,7 @@ pub enum ItemRole {
 pub enum ItemContentType {
     /// seemingly deprecated
     InputText,
+    OutputText,
     /// seemingly deprecated
     InputAudio,
     InputImage,

@@ -125,22 +125,10 @@ pub struct TranscriptionConfig {
     /// The language of the input audio in ISO-639-1 (e.g. "en") format. Will improve accuracy and latency if set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub language: Option<String>,
-    pub model: TranscriptionModel,
+    pub model: String,
     /// An optional text to guide the model's style or continue a previous audio segment. For `whisper-1`, the prompt is a list of keywords. For `gpt-4o-transcribe` models, the prompt is a free text string, for example "expect words related to technology".
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prompt: Option<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum TranscriptionModel {
-    #[serde(rename = "whisper-1")]
-    Whisper1,
-    #[serde(rename = "gpt-4o-transcribe-latest")]
-    Gpt4oTranscribeLatest,
-    #[serde(rename = "gpt-4o-mini-transcribe")]
-    Gpt4oMiniTranscribe,
-    #[serde(rename = "gpt-4o-transcribe")]
-    Gpt4oTranscribe,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

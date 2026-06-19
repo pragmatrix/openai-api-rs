@@ -95,6 +95,33 @@ pub struct ConversationItemInputAudioTranscriptionFailed {
     pub error: APIError,
 }
 
+/// Voice Live / Realtime: an intermediate transcription segment with word-level timing and
+/// optional speaker attribution. Emitted while a turn is still being transcribed.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ConversationItemInputAudioTranscriptionSegment {
+    pub event_id: String,
+    /// Identifier of this segment.
+    pub id: String,
+    pub item_id: String,
+    pub content_index: u32,
+    pub text: String,
+    pub speaker: Option<String>,
+    /// Segment start time in seconds relative to the conversation item.
+    pub start: f64,
+    /// Segment end time in seconds relative to the conversation item.
+    pub end: f64,
+}
+
+/// Voice Live: emitted when the configured input-audio timeout elapses and the buffer is
+/// committed automatically, marking the end of a turn.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct InputAudioBufferTimeoutTriggered {
+    pub event_id: String,
+    pub audio_start_ms: u32,
+    pub audio_end_ms: u32,
+    pub item_id: String,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ConversationItemTruncated {
     pub event_id: String,
@@ -352,6 +379,10 @@ pub enum ServerEvent {
     ConversationItemInputAudioTranscriptionDelta(ConversationItemInputAudioTranscriptionDelta),
     #[serde(rename = "conversation.item.input_audio_transcription.failed")]
     ConversationItemInputAudioTranscriptionFailed(ConversationItemInputAudioTranscriptionFailed),
+    #[serde(rename = "conversation.item.input_audio_transcription.segment")]
+    ConversationItemInputAudioTranscriptionSegment(ConversationItemInputAudioTranscriptionSegment),
+    #[serde(rename = "input_audio_buffer.timeout_triggered")]
+    InputAudioBufferTimeoutTriggered(InputAudioBufferTimeoutTriggered),
     #[serde(rename = "conversation.item.truncated")]
     ConversationItemTruncated(ConversationItemTruncated),
     #[serde(rename = "conversation.item.deleted")]
@@ -418,6 +449,9 @@ pub enum ServerEvent {
     McpListToolsCompleted(McpListToolsCompleted),
     #[serde(rename = "mcp_list_tools.failed")]
     McpListToolsFailed(McpListToolsFailed),
+    /// Catch-all for events not modeled here, so an unknown `type` does not fail deserialization.
+    #[serde(other)]
+    Unknown,
 }
 
 #[cfg(test)]

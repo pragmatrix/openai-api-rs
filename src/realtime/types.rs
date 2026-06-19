@@ -40,6 +40,9 @@ pub struct TranscriptionSession {
 pub struct RealtimeSession {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub audio: Option<AudioConfig>,
+    /// Voice Live: flat top-level session fields.
+    #[serde(flatten)]
+    pub voice_live: VoiceLiveSession,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub include: Option<Vec<AdditionalServerOutput>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -131,6 +134,38 @@ pub struct TranscriptionConfig {
     pub prompt: Option<String>,
 }
 
+/// Voice Live: flat session.update fields used by Foundry Voice Live endpoints.
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+pub struct VoiceLiveSession {
+    /// Input audio sampling rate in Hz (supported values: 16000, 24000).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_audio_sampling_rate: Option<u32>,
+    /// Voice Live input-side noise reduction.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_audio_noise_reduction: Option<NoiseReduction>,
+    /// Voice Live server-side echo cancellation.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_audio_echo_cancellation: Option<InputAudioEchoCancellation>,
+    /// Voice Live input transcription configuration.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_audio_transcription: Option<TranscriptionConfig>,
+    /// Voice Live/OpenAI turn detection configuration.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub turn_detection: Option<TurnDetection>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct InputAudioEchoCancellation {
+    #[serde(rename = "type")]
+    pub cancellation_type: InputAudioEchoCancellationType,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum InputAudioEchoCancellationType {
+    ServerEchoCancellation,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum VadMode {
@@ -169,12 +204,84 @@ pub struct SemanticVadConfig {
 
 /// low will wait longer for the user to continue speaking, high will respond more quickly. auto is the default and is equivalent to medium. low, medium, and high have max timeouts of 8s, 4s, and 2s respectively.
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "lowercase")]
 pub enum SemanticVadEagerness {
     /// Equivalent to Medium.
     Auto,
     Low,
     Medium,
     High,
+}
+
+/// Voice Live turn detection configuration shared by the `azure_semantic_vad` and
+/// `azure_semantic_vad_multilingual` types. All fields are optional; the service applies
+/// documented defaults when a field is omitted.
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+pub struct AzureSemanticVadConfig {
+    /// Activation threshold (0.0-1.0). A higher threshold requires a higher confidence signal.
+    /// Default: 0.5.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub threshold: Option<f64>,
+    /// Amount of audio (ms) to include before the start of detected speech.
+    /// Default: 420 for API version 2026-04-10 and later (300 for earlier versions).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prefix_padding_ms: Option<u32>,
+    /// Duration of user speech (ms) required to start detection.
+    /// Default: 80.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub speech_duration_ms: Option<u32>,
+    /// Duration of silence (ms) to detect the end of speech.
+    /// Default: 500.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub silence_duration_ms: Option<u32>,
+    /// Voice Live semantic end-of-utterance strategy. The service currently documents this
+    /// incompletely, so keep it as an untyped passthrough to avoid rejecting valid values.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub end_of_utterance_detection: Option<serde_json::Value>,
+    /// Negative confidence threshold used by the semantic end detector.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub neg_threshold: Option<f64>,
+    /// Sliding window size used by the semantic end detector.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub window_size: Option<u32>,
+    /// Distinct context-independent phones threshold for semantic end detection.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub distinct_ci_phones: Option<u32>,
+    /// Detector window size while the assistant is speaking.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub window_size_assistant_speaking: Option<u32>,
+    /// Distinct context-independent phones threshold while the assistant is speaking.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub distinct_ci_phones_assistant_speaking: Option<u32>,
+    /// Require a vowel-like signal before committing end-of-utterance.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub require_vowel: Option<bool>,
+    /// Require a vowel-like signal while the assistant is speaking.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub require_vowel_assistant_speaking: Option<bool>,
+    /// Remove filler words to reduce the false alarm rate of barge-in.
+    /// Default: false.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub remove_filler_words: Option<bool>,
+    /// Languages used to improve `remove_filler_words` accuracy.
+    /// Default: none.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub languages: Option<Vec<String>>,
+    /// Enable or disable whether a response is generated.
+    /// Default: true.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub create_response: Option<bool>,
+    /// Enable or disable barge-in interruption.
+    /// Default: true.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub interrupt_response: Option<bool>,
+    /// Auto-truncate on interruption.
+    /// Default: false.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub auto_truncate: Option<bool>,
+    /// Text appended when auto-truncation is applied.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub appended_text_after_truncation: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -190,6 +297,8 @@ pub enum NoiseReductionType {
     NearField,
     /// `far_field` is for far-field microphones such as laptop or conference room microphones
     FarField,
+    /// Voice Live: Azure deep noise suppression, optimized for the speaker closest to the microphone.
+    AzureDeepNoiseSuppression,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -252,7 +361,14 @@ pub struct AudioTranscription {
 pub enum TurnDetection {
     #[serde(rename = "server_vad")]
     ServerVAD(ServerVadConfig),
+    #[serde(rename = "semantic_vad")]
     SemanticVAD(SemanticVadConfig),
+    /// Voice Live: Azure semantic VAD (primarily English), usable with all models.
+    #[serde(rename = "azure_semantic_vad")]
+    AzureSemanticVad(AzureSemanticVadConfig),
+    /// Voice Live: multilingual Azure semantic VAD.
+    #[serde(rename = "azure_semantic_vad_multilingual")]
+    AzureSemanticVadMultilingual(AzureSemanticVadConfig),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

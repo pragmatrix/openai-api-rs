@@ -1,13 +1,14 @@
 use serde::{Deserialize, Serialize};
 use tokio_tungstenite::tungstenite::Message;
 
-use crate::realtime::types::{Item, RealtimeSession, Session, UntaggedSession};
+use crate::realtime::types::{Item, RealtimeSession, Session, UntaggedSession, VoiceLiveSession};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 pub enum SessionUpdatePayload {
     Tagged(Session),
     Untagged(UntaggedSession),
+    VoiceLive(VoiceLiveSession),
 }
 
 impl Default for SessionUpdatePayload {

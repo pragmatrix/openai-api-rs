@@ -235,9 +235,9 @@ pub struct AzureSemanticVadConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub silence_duration_ms: Option<u32>,
     /// Voice Live semantic end-of-utterance strategy. The service currently documents this
-    /// incompletely, so keep it as an untyped passthrough to avoid rejecting valid values.
+    /// as a structured object with model, threshold level, and timeout settings.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub end_of_utterance_detection: Option<serde_json::Value>,
+    pub end_of_utterance_detection: Option<EndOfUtteranceDetectionConfig>,
     /// Negative confidence threshold used by the semantic end detector.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub neg_threshold: Option<f64>,
@@ -354,6 +354,40 @@ pub struct AudioTranscription {
     pub model: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prompt: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum EndOfUtteranceDetectionModel {
+    SemanticDetectionV1,
+    SemanticDetectionV1Multilingual,
+    SmartEndOfTurnDetection,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "lowercase")]
+/// Sensitivity level for smart end-of-utterance detection.
+///
+/// Lower levels wait for stronger evidence before ending a turn;
+/// higher levels end turns earlier.
+pub enum EndOfUtteranceThresholdLevel {
+    /// Conservative end-of-turn detection (fewer early cutoffs).
+    Low,
+    /// Balanced default-style behavior.
+    Medium,
+    /// Aggressive end-of-turn detection (faster turn closure).
+    High,
+    /// Let the service choose its built-in threshold behavior.
+    Default,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct EndOfUtteranceDetectionConfig {
+    pub model: EndOfUtteranceDetectionModel,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub threshold_level: Option<EndOfUtteranceThresholdLevel>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub timeout_ms: Option<u32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

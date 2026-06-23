@@ -5,6 +5,7 @@ use strum::{EnumIter, EnumString, VariantNames};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "lowercase", tag = "type")]
+#[allow(clippy::large_enum_variant, variant_size_differences)]
 pub enum Session {
     Realtime(RealtimeSession),
     Transcription(TranscriptionSession),
@@ -18,6 +19,7 @@ impl Default for Session {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 /// The `Session` info is sent without an inner `type` tag on the `session.created` server event and the `session.update` client one.
+#[allow(clippy::large_enum_variant, variant_size_differences)]
 pub enum UntaggedSession {
     Realtime(RealtimeSession),
     Transcription(TranscriptionSession),
